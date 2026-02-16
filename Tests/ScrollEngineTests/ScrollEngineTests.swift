@@ -14,21 +14,34 @@ struct ScrollAxisTests {
 
 @Suite("ScrollGestureRecorder")
 struct ScrollGestureRecorderTests {
-    @Test("modifier initialises with default vertical axis")
+    @Test("modifier initialises with vertical axis")
     func defaultAxis() {
         var value: Double = 0
         let binding = Binding(get: { value }, set: { value = $0 })
-        let modifier = ScrollGestureRecorder(offset: binding, axis: .vertical, onEnded: nil)
-        // Verify the modifier can be created without error and axis is set
-        #expect(modifier.axis == .vertical)
+        let recorder = ScrollGestureRecorder(offset: binding, axis: .vertical, onEnded: nil)
+        #expect(recorder.axis == .vertical)
     }
 
     @Test("modifier initialises with horizontal axis")
     func horizontalAxis() {
         var value: Double = 0
         let binding = Binding(get: { value }, set: { value = $0 })
-        let modifier = ScrollGestureRecorder(offset: binding, axis: .horizontal, onEnded: nil)
-        #expect(modifier.axis == .horizontal)
+        let recorder = ScrollGestureRecorder(offset: binding, axis: .horizontal, onEnded: nil)
+        #expect(recorder.axis == .horizontal)
+    }
+
+    @Test("onEnded callback is stored")
+    func onEndedStored() {
+        var value: Double = 0
+        let binding = Binding(get: { value }, set: { value = $0 })
+        var called = false
+        let recorder = ScrollGestureRecorder(
+            offset: binding,
+            axis: .vertical,
+            onEnded: { _ in called = true }
+        )
+        recorder.onEnded?(42)
+        #expect(called)
     }
 }
 
@@ -56,7 +69,7 @@ struct ViewExtensionTests {
         #expect(type(of: view) != Never.self)
     }
 
-    @Test("scrollGesture horizontal axis compiles")
+    @Test("scrollGesture with horizontal axis compiles")
     func horizontalAPI() {
         var value: Double = 0
         let binding = Binding(get: { value }, set: { value = $0 })
@@ -64,3 +77,15 @@ struct ViewExtensionTests {
         #expect(type(of: view) != Never.self)
     }
 }
+
+#if os(macOS)
+@Suite("macOS ScrollWheelCapture")
+struct ScrollWheelCaptureTests {
+    @Test("ScrollWheelCapture coordinator installs without error")
+    func coordinatorCreation() {
+        let coordinator = ScrollWheelCapture.Coordinator()
+        #expect(coordinator.view == nil)
+        // Coordinator exists and is safe to use before a view is attached
+    }
+}
+#endif
