@@ -7,7 +7,7 @@ let package = Package(
     name: "ScrollEngine",
     platforms: [
         .iOS(.v26),
-        .macOS(.v13),
+        .macOS(.v14),
     ],
     products: [
         .library(
